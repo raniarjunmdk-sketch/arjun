@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      (function() {
+        var RealWebSocket = window.WebSocket;
+        if (typeof RealWebSocket !== 'undefined') {
+          class MockHmrSocket extends EventTarget {
+            constructor(url, protocols) {
+              super();
+              this.url = url;
+              this.protocols = protocols;
+              this.readyState = RealWebSocket.OPEN;
+              this.OPEN = RealWebSocket.OPEN;
+              this.CONNECTING = RealWebSocket.CONNECTING;
+              this.CLOSING = RealWebSocket.CLOSING;
+              this.CLOSED = RealWebSocket.CLOSED;
+              this.binaryType = 'blob';
+              this.bufferedAmount = 0;
+              this.extensions = '';
+              this.protocol = Array.isArray(protocols) ? protocols[0] : (protocols || 'vite-hmr');
+              this.onopen = null;
+              this.onclose = null;
+              this.onerror = null;
+              this.onmessage = null;
+
+              setTimeout(() => {
+                const openEv = new Event('open');
+                this.dispatchEvent(openEv);
+                if (typeof this.onopen === 'function') this.onopen(openEv);
+
+                const msgEv = new MessageEvent('message', {
+                  data: JSON.stringify({ type: 'connected' })
+                });
+                this.dispatchEvent(msgEv);
+                if (typeof this.onmessage === 'function') this.onmessage(msgEv);
+              }, 10);
+            }
+            send() {}
+            close() {}
+          }
+
+          function PatchedWebSocket(url, protocols) {
+            const isHmr = (protocols === 'vite-hmr') ||
+              (Array.isArray(protocols) && protocols.includes('vite-hmr')) ||
+              (typeof url === 'string' && url.includes('token=') && !url.includes('/api/ws'));
+            if (isHmr) {
+              return new MockHmrSocket(url, protocols);
+            }
+            return new RealWebSocket(url, protocols);
+          }
+
+          PatchedWebSocket.prototype = RealWebSocket.prototype;
+          PatchedWebSocket.CONNECTING = RealWebSocket.CONNECTING;
+          PatchedWebSocket.OPEN = RealWebSocket.OPEN;
+          PatchedWebSocket.CLOSING = RealWebSocket.CLOSING;
+          PatchedWebSocket.CLOSED = RealWebSocket.CLOSED;
+          window.WebSocket = PatchedWebSocket;
+        }
+
+        function shouldIgnore(msg, file) {
+          var str = String(msg || '') + ' ' + String(file || '');
+          return str.indexOf('WebSocket') !== -1 || str.indexOf('@vite/client') !== -1 || str.indexOf('vite-hmr') !== -1;
+        }
+        window.addEventListener('error', function(e) {
+          if (e && shouldIgnore(e.message, e.filename)) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return true;
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(e) {
+          if (e && shouldIgnore(e.reason, '')) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Solis & Tas Patti Club — Indian Card Games & Zen Logic</title>
+    <meta name="description" content="Zen logic puzzles & Tas Patti card games (Hazari 1000 pts, Rummy, Teen Patti). Saves progress permanently in phone storage." />
+    <meta property="og:title" content="Solis & Tas Patti Club" />
+    <meta property="og:description" content="Zen logic puzzles & Tas Patti card games with offline phone storage." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#08170f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SolisCards" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#08170f] text-slate-100 overflow-x-hidden antialiased select-none">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

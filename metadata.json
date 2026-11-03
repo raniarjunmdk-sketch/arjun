@@ -1,0 +1,6 @@
+{
+  "name": "Solis & Tas Patti Club",
+  "description": "Relaxing solitary logic puzzles and traditional Indian Tas Patti card games including Hazari (1000 pts), Rummy, Teen Patti, and Call Break with real-time multiplayer friend invites and smart bots.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

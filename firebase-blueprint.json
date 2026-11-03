@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Player profile storing username, streak data, and wallet balance.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "username": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "coins": {
+          "type": "number"
+        },
+        "currentStreak": {
+          "type": "number"
+        },
+        "bestStreak": {
+          "type": "number"
+        },
+        "lastActiveDate": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "username", "coins", "currentStreak", "bestStreak", "createdAt"]
+    },
+    "GameRecord": {
+      "title": "Game Record",
+      "description": "Records completed puzzle or card game stats.",
+      "type": "object",
+      "properties": {
+        "recordId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "puzzleId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "number"
+        }
+      },
+      "required": ["recordId", "userId", "puzzleId", "completedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "UserProfile"
+      },
+      "description": "User profiles collection."
+    },
+    "/users/{userId}/records/{recordId}": {
+      "schema": {
+        "$ref": "GameRecord"
+      },
+      "description": "Subcollection of player game records."
+    }
+  }
+}
